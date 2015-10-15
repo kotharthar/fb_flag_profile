@@ -1,0 +1,27 @@
+// You need ImageMagick installed.
+// You need org-flag.jpg, stripe-overaly.png and profile.jpg
+
+//  (A) Find out the size of flag
+identify -format '%Wx%H' org-flag.jpg
+
+// (B) Get color from first pixel
+convert org-flag.jpg -format '%[pixel:p{1,1}]' info:-
+
+// (C) Extend to Square shape filled with color from first pixel (Replace srgb value from (B) and larger width or height from (A))
+convert org-flag.jpg -background 'srgb(237,5,5)' -gravity center -extent 2500x2500 square-flag.jpg
+
+// (D) Convert profile picture alpha to 60%
+convert profile.jpg -matte -channel a -evaluate set 60% profileb.png
+
+// (E) Find out the size of profile picture
+identify -format '%Wx%H' profile.jpg
+
+// (G) Resize Strip-overlay. Replace size value got from (E)
+convert -resize 400x400 stripe-overlay.png stripe-overlay-resized.png
+
+// (G) Resize Flag. Replace size value got from (E)
+convert -resize 400x400 square-flag.jpg square-flag-resized.png
+
+// Put profile picture over the striped flag
+composite -gravity center stripe-overlay-resized.png square-flag-resized.png temp.jpg
+composite -gravity center profileb.png temp.jpg result.jpg
